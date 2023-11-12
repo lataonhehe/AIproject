@@ -87,12 +87,46 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = set()  # Tạo một set các trạng thái đã được duyệt/đi qua
+    stack = util.Stack()  # Stack để lưu các trạng thái DFS
+    stack.push((problem.getStartState(), []))  # Tạo hành động trống cho trạng thái bắt đầu
+
+    while not stack.isEmpty():
+        state, actions = stack.pop()
+
+        if problem.isGoalState(state):
+            return actions
+
+        if state not in visited:
+            visited.add(state)
+            successors = problem.getSuccessors(state)
+            for successor, action, _ in successors:
+                new_actions = actions + [action]
+                stack.push((successor, new_actions))
+
+    return []
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = set()  # Tạo một set các trạng thái đã được duyệt/đi qua
+    queue = util.Queue()  # Queue để lưu các trạng thái BFS
+    queue.push((problem.getStartState(), []))  # Tạo hành động trống cho trạng thái bắt đầu
+
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+
+        if problem.isGoalState(state):
+            return actions
+
+        if state not in visited:
+            visited.add(state)
+            successors = problem.getSuccessors(state)
+            for successor, action, _ in successors:
+                new_actions = actions + [action]
+                queue.push((successor, new_actions))
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
