@@ -116,17 +116,25 @@ def findModelUnderstandingCheck() -> Dict[Expr, bool]:
     """Returns the result of findModel(Expr('a')) if lower cased expressions were allowed.
     You should not use findModel or Expr in this method.
     """
-    a = Expr('A')
+    class dummyClass:
+        """dummy('A') has representation A, unlike a string 'A' that has repr 'A'.
+        Of note: Expr('Name') has representation Name, not 'Name'.
+        """
+        def __init__(self, variable_name: str = 'A'):
+            self.variable_name = variable_name
+        
+        def __repr__(self):
+            return self.variable_name
     "*** BEGIN YOUR CODE HERE ***"
-    print("a.__dict__ is:", a.__dict__) # might be helpful for getting ideas
-    util.raiseNotDefined()
+    return {dummyClass('a'): True}
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
     """Returns True if the premise entails the conclusion and False otherwise.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    c = premise & (~conclusion)
+    return findModel(c) == False
     "*** END YOUR CODE HERE ***"
 
 def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> bool:
@@ -134,7 +142,7 @@ def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> boo
     pl_true may be useful here; see logic.py for its description.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return pl_true((~inverse_statement), assignments)
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
