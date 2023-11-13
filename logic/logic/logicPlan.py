@@ -192,7 +192,7 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return conjoin([atLeastOne(literals), atMostOne(literals)])
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
