@@ -69,7 +69,15 @@ def sentence2() -> Expr:
     (not D) implies C
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    A = Expr('A')
+    B = Expr('B')
+    C = Expr('C')
+    D = Expr('D')
+    c1 = C % (B | D)
+    c2 = A >> ((~B) & (~D))
+    c3 = (~(B & (~C))) >> A 
+    c4 = (~D) >> C
+    return conjoin([c1,c2,c3,c4])
     "*** END YOUR CODE HERE ***"
 
 
@@ -86,7 +94,15 @@ def sentence3() -> Expr:
     Pacman is born at time 0.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    PacmanAlive_0 = PropSymbolExpr('PacmanAlive',time=0)
+    PacmanAlive_1 = PropSymbolExpr('PacmanAlive',time=1)
+    PacmanBorn_0 = PropSymbolExpr('PacmanBorn',time=0)
+    PacmanKilled_0 = PropSymbolExpr('PacmanKilled',time=0)
+
+    c1 = PacmanAlive_1 % ((PacmanAlive_0 & (~PacmanKilled_0)) | ((~PacmanAlive_0) & PacmanBorn_0))
+    c2 = ~(PacmanAlive_0 & PacmanBorn_0)
+    c3 = PacmanBorn_0
+    return conjoin([c1,c2,c3])
     "*** END YOUR CODE HERE ***"
 
 def findModel(sentence: Expr) -> Dict[Expr, bool]:
@@ -100,17 +116,25 @@ def findModelUnderstandingCheck() -> Dict[Expr, bool]:
     """Returns the result of findModel(Expr('a')) if lower cased expressions were allowed.
     You should not use findModel or Expr in this method.
     """
-    a = Expr('A')
+    class dummy:
+        """dummy('A') has representation A, unlike a string 'A' that has repr 'A'.
+        Of note: Expr('Name') has representation Name, not 'Name'.
+        """
+        def __init__(self, variable_name: str = 'A'):
+            self.variable_name = variable_name
+        
+        def __repr__(self):
+            return self.variable_name
     "*** BEGIN YOUR CODE HERE ***"
-    print("a.__dict__ is:", a.__dict__) # might be helpful for getting ideas
-    util.raiseNotDefined()
+    return {dummy('a'): True}
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
     """Returns True if the premise entails the conclusion and False otherwise.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    c = premise & (~conclusion)
+    return findModel(c) == False
     "*** END YOUR CODE HERE ***"
 
 def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> bool:
@@ -118,7 +142,7 @@ def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> boo
     pl_true may be useful here; see logic.py for its description.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return pl_true((~inverse_statement), assignments)
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
