@@ -116,7 +116,7 @@ def findModelUnderstandingCheck() -> Dict[Expr, bool]:
     """Returns the result of findModel(Expr('a')) if lower cased expressions were allowed.
     You should not use findModel or Expr in this method.
     """
-    class dummyClass:
+    class dummy:
         """dummy('A') has representation A, unlike a string 'A' that has repr 'A'.
         Of note: Expr('Name') has representation Name, not 'Name'.
         """
@@ -126,7 +126,7 @@ def findModelUnderstandingCheck() -> Dict[Expr, bool]:
         def __repr__(self):
             return self.variable_name
     "*** BEGIN YOUR CODE HERE ***"
-    return {dummyClass('a'): True}
+    return {dummy('a'): True}
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
