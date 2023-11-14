@@ -225,7 +225,7 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
         return None
     
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return PropSymbolExpr(pacman_str, x, y, time=now) % logic.disjoin(possible_causes)
     "*** END YOUR CODE HERE ***"
 
 
@@ -296,7 +296,27 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     pacphysics_sentences = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Duyệt qua tất cả các tọa độ trong danh sách all_coords
+    for coordinate in all_coords:
+        pacphysics_sentences.append(logic.PropSymbolExpr(wall_str, coordinate[0], coordinate[1]) >>
+                                    ~logic.PropSymbolExpr(pacman_str, coordinate[0], coordinate[1], time=t))
+
+    # Điều kiện 2: Pacman đang ở chính xác một trong các ô tại thời điểm t
+    wall_list = [logic.PropSymbolExpr(pacman_str, wall_coordinate[0], wall_coordinate[1], time=t) for wall_coordinate in non_outer_wall_coords]
+    pacphysics_sentences.append(exactlyOne(wall_list))
+
+    # Điều kiện 3: Pacman thực hiện chính xác một hành động tại thời điểm t
+    dir_list = exactlyOne([logic.PropSymbolExpr(direction, time=t) for direction in DIRECTIONS])
+    pacphysics_sentences.append(dir_list)
+
+    # Điều kiện 4: Kết quả của việc gọi sensorModel(...), trừ khi là None
+    if sensorModel:
+        pacphysics_sentences.append(sensorModel(t, non_outer_wall_coords))
+
+    # Điều kiện 5: Kết quả của việc gọi successorAxioms(...), mô tả cách Pacman có thể đến các vị trí khác nhau tại thời điểm này.
+    if successorAxioms and walls_grid and t:
+        pacphysics_sentences.append(successorAxioms(t, walls_grid, non_outer_wall_coords))
+
     "*** END YOUR CODE HERE ***"
 
     return conjoin(pacphysics_sentences)
@@ -330,7 +350,16 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
     KB.append(conjoin(map_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for i in range(0, 2):
+        KB.append(pacphysicsAxioms(i, all_coords, non_outer_wall_coords, walls_grid, None, allLegalSuccessorAxioms))
+
+    KB.append(logic.PropSymbolExpr(pacman_str, x0, y0, time = 0))
+    KB.append(logic.PropSymbolExpr(action1, time = 1))
+    KB.append(logic.PropSymbolExpr(action0, time = 0))
+    
+    # Một mô hình trong đó Pacman ở và không ở ở (x1, y1) tại thời điểm t = 1
+    return (findModel(logic.conjoin(KB) & logic.PropSymbolExpr(pacman_str, x1, y1, time = 1)), 
+            findModel(logic.conjoin(KB) & ~logic.PropSymbolExpr(pacman_str, x1, y1, time = 1)))
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
