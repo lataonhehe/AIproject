@@ -386,7 +386,25 @@ def positionLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    KB.append(logic.PropSymbolExpr(pacman_str, x0, y0, time = 0))
+    
+    for t in range(50):
+        print(f"Time step = {t}")
+
+        pacman_locations = exactlyOne([logic.PropSymbolExpr(pacman_str, wall_coord[0], wall_coord[1], time = t) for wall_coord in non_wall_coords])
+        KB.append(pacman_locations)  
+        
+        goal_state = logic.PropSymbolExpr(pacman_str, xg, yg, time = t)
+        model = findModel(goal_state & logic.conjoin(KB))
+        if (model):
+            return extractActionSequence(model, actions)  
+
+        possible_actions = exactlyOne([logic.PropSymbolExpr(action, time = t) for action in actions])
+        KB.append(possible_actions)
+
+        for wall_coord in non_wall_coords: KB.append(pacmanSuccessorAxiomSingle(wall_coord[0], wall_coord[1], t+1, walls_grid))
+    
+    return None
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
@@ -415,7 +433,43 @@ def foodLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    KB.append(logic.PropSymbolExpr(pacman_str, x0, y0, time=0))
+
+    # Khởi tạo các biến Food[x,y]_t
+    # trong đó mỗi biến đúng nếu và chỉ nếu có thức ăn tại (x, y) tại thời điểm t
+    for food_coords in food:
+        KB.append(logic.PropSymbolExpr(food_str, food_coords[0], food_coords[1], time=0))
+
+    for t in range(50):
+        # Thêm vào KB: Kiến thức ban đầu: Pacman chỉ có thể ở chính xác một trong các vị trí trong non_wall_coords tại thời điểm t
+        pacman_locations = exactlyOne([logic.PropSymbolExpr(pacman_str, wall_coord[0], wall_coord[1], time=t) for wall_coord in non_wall_coords])
+        KB.append(pacman_locations)
+
+        # Đúng nếu tất cả thức ăn đã được ăn
+        goal_state = [~logic.PropSymbolExpr(food_str, food_coord[0], food_coord[1], time=t) for food_coord in food]
+        model = findModel(logic.conjoin(goal_state + KB))
+        if model:
+            return extractActionSequence(model, actions)
+
+        possible_actions = exactlyOne([logic.PropSymbolExpr(action, time=t) for action in actions])
+        KB.append(possible_actions)
+
+        # Gọi pacmanSuccessorAxiomSingle(...) cho tất cả các vị trí Pacman có thể có trong non_wall_coords
+        for wall_coord in non_wall_coords:
+            KB.append(pacmanSuccessorAxiomSingle(wall_coord[0], wall_coord[1], t+1, walls))
+
+        for food_coord in food:
+            pacman_loc = logic.PropSymbolExpr(pacman_str, food_coord[0], food_coord[1], time=t)
+            food_loc = logic.PropSymbolExpr(food_str, food_coord[0], food_coord[1], time=t)
+            next_food = logic.PropSymbolExpr(food_str, food_coord[0], food_coord[1], time=t+1)
+            
+            get_food = food_loc & pacman_loc
+            avoid_food = food_loc & ~pacman_loc
+
+            KB.append(avoid_food >> next_food)
+            KB.append(get_food >> ~next_food)
+
+    return None
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
